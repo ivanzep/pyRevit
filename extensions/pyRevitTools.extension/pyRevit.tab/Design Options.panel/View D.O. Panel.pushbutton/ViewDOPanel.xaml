@@ -1,0 +1,66 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="View D.O. Panel" Height="420" Width="480"
+        MinHeight="250" MinWidth="360"
+        ShowInTaskbar="True" ResizeMode="CanResize"
+        WindowStartupLocation="Manual"
+        Background="#FF2c3e50">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="HeaderText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="SubText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#FFbdc3c7"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="View: " Style="{StaticResource HeaderText}"/>
+            <TextBlock x:Name="tb_viewname" Text="—" Style="{StaticResource HeaderText}"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="1" x:Name="tb_status" Margin="0,4,0,10"
+                    Style="{StaticResource SubText}" TextWrapping="Wrap"/>
+
+        <DataGrid Grid.Row="2" x:Name="grid_options"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    CanUserAddRows="False"
+                    CanUserDeleteRows="False"
+                    CanUserReorderColumns="False"
+                    GridLinesVisibility="Horizontal"
+                    HeadersVisibility="Column"
+                    RowHeaderWidth="0"
+                    Background="#FF23303d"
+                    Foreground="White"
+                    BorderBrush="#FF34495e"
+                    RowBackground="#FF2c3e50"
+                    AlternatingRowBackground="#FF283747">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Option Set" Binding="{Binding OptionSet}" Width="*"/>
+                <DataGridTextColumn Header="Design Option" Binding="{Binding OptionName}" Width="*"/>
+                <DataGridTextColumn Header="Primary" Binding="{Binding Primary}" Width="70"/>
+                <DataGridTextColumn Header="Active" Binding="{Binding Active}" Width="70"/>
+                <DataGridTextColumn Header="Elements In View" Binding="{Binding ElementCount}" Width="110"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="button_refresh" Content="Refresh" Width="90" Height="26"
+                    Click="refresh_click"/>
+        </StackPanel>
+    </Grid>
+</Window>
