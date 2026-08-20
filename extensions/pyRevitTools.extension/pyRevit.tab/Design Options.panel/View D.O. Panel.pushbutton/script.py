@@ -12,9 +12,10 @@ changes, or on demand with the Refresh button.
 import os.path as op
 
 from Autodesk.Revit.DB import (
+    BuiltInCategory,
+    BuiltInParameter,
     FilteredElementCollector,
     DesignOption,
-    DesignOptionSet,
     ElementDesignOptionFilter,
 )
 
@@ -53,27 +54,26 @@ def collect_design_option_rows(doc, view):
 
     active_option_id = DesignOption.GetActiveDesignOptionId(doc)
 
+    # Design Option Sets have no dedicated API class - they are plain
+    # Elements under the OST_DesignOptionSets category.
     option_sets = FilteredElementCollector(doc)\
-        .OfClass(DesignOptionSet)\
+        .OfCategory(BuiltInCategory.OST_DesignOptionSets)\
+        .WhereElementIsNotElementType()\
+        .ToElements()
+    option_set_names = {os_.Id: os_.Name for os_ in option_sets}
+
+    all_options = FilteredElementCollector(doc)\
+        .OfClass(DesignOption)\
         .ToElements()
 
     # group options by their parent option set, then sort for stable display
     options_by_set = {}
-    for option_set in option_sets:
-        try:
-            options_by_set[option_set.Name] = list(option_set.Options)
-        except Exception as group_ex:
-            logger.dev_log(
-                'collect_design_option_rows::group', str(group_ex))
-
-    # fall back to a flat, ungrouped listing if the DesignOptionSet.Options
-    # API shape is unavailable in this Revit version
-    if not options_by_set:
-        all_options = FilteredElementCollector(doc)\
-            .OfClass(DesignOption)\
-            .ToElements()
-        if all_options:
-            options_by_set['All Design Options'] = list(all_options)
+    for option in all_options:
+        set_id_param = option.get_Parameter(
+            BuiltInParameter.OPTION_SET_ID)
+        set_id = set_id_param.AsElementId() if set_id_param else None
+        set_name = option_set_names.get(set_id, 'Unknown Option Set')
+        options_by_set.setdefault(set_name, []).append(option)
 
     for set_name in sorted(options_by_set.keys()):
         options = sorted(options_by_set[set_name], key=lambda x: x.Name)
